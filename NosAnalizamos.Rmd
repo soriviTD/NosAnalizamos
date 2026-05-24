@@ -93,7 +93,11 @@ ggplot(notas, aes(x=asignatura, y=valores)) + geom_boxplot()
 
 10. Añade la variable sexo al conjunto de datos y realiza la representación del boxplot de calificaciones por asignatura coloreando según dicha variable.
 ```{r}
-
+notas_con_sexo <- datos[,c(4, 13, 14, 15, 16, 17)]
+notas_con_sexo <- notas_con_sexo %>%
+  pivot_longer(c(-Sex), names_to="asignatura", values_to="valores") %>%
+  filter(!is.na(valores))
+ggplot(notas_con_sexo, aes(x=asignatura, y=valores)) + geom_boxplot(aes(colour=Sex))
 ```
 
 11. Selecciona los alumnos que tengan calificaciones en todas las asignaturas y represéntalas gráficamente.  En el eje X aparecerá el usuario del alumno (girado 90º) y en el eje Y la calificación numérica con un color distinto para cada asignatura. Se mostrará un diagrama de líneas, que una las calificaciones de una misma asignatura para todos los alumnos así como un punto, por asignatura (del mismo color que las líneas), para cada asignatura y alumno.
