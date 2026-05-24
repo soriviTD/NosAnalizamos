@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 if (!require("pacman")) install.packages("pacman")
 library(pacman)
-pacman::p_load(readr, dplyr, GGally)
+pacman::p_load(readr, dplyr, GGally, ggplot2)
 ```
 
 3. Carga el fichero de datos en R y llama datos al data frame obtenido. Este data frame contendrá exclusivamente las columnas con variables y las filas que contengan datos. Se sabe que los datos empiezan en la fila 25 pero NO cuántos alumnos puede haber por lo que la selección de filas con datos debe ser AUTOMÁTICA.
@@ -69,17 +69,26 @@ colnames(tabla)[colnames(tabla)=="asignatura"] <- "Asignatura"
 
 7. Usa la función ggpairs de la librería GGally y representa las relaciones entre todas las variables.
 ```{r}
-ggpairs(tabla)
+tabla2 <- tabla[,-1]
+tabla2 <- tabla2 %>%
+  mutate(across(everything(), as.numeric))
+ggpairs(tabla2)
 ```
 
 8. Determina las matrices de correlación y covarianza de dichas variables, con las opciones "Spearman" y "Pearson" e indica qué  pares de variables tienen la correlación más alta. 
 ```{r}
-
+cor(tabla2, method="pearson") #"Percentil75" con "ValorMedio" son los más relacionados con 0.9912093.
+cor(tabla2, method="spearman") #"DesviacionTipica" con "Percentil25", "Mediana" y "Percentil75" con "-0.9".
+cov(tabla2) #"ValorMedio" y "Mediana" con 0.658745.
 ```
 
 9. Representa en una misma gráfica los boxplots con las calificaciones obtenidas en las diferentes asignaturas.
 ```{r}
-
+notas <- datos[,c(13, 14, 15, 16, 17)]
+notas <- notas %>%
+  pivot_longer(everything(), names_to="asignatura", values_to="valores") %>%
+  filter(!is.na(valores))
+ggplot(notas, aes(x=asignatura, y=valores)) + geom_boxplot()
 ```
 
 10. Añade la variable sexo al conjunto de datos y realiza la representación del boxplot de calificaciones por asignatura coloreando según dicha variable.
