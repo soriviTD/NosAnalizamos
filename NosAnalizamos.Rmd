@@ -49,15 +49,22 @@ datos <- datos %>%
 tabla <- datos %>%
    summarise(across(c(ALG, ANM, FP, DCS, MD),
                     list(
-                      valor_minimo = min,
-                      percentil25 = ~quantile(., 0.25, na.rm=T),
-                      mediana = ~quantile(., 0.5, na.rm=T),
-                      valor_medio = ~mean(., na.rm=T), #el valor medio es la media
-                      desviacion_tipica = ~sd(., na.rm=T), #existe la función sd, no hace falta hacer sqrt(var())
-                      percentil75 = ~quantile(., 0.75, na.rm=T),
-                      valor_maximo = ~max(., na.rm=T))))
+                      ValorMinimo = ~min(., na.rm=T),
+                      Percentil25 = ~quantile(., 0.25, na.rm=T),
+                      Mediana = ~quantile(., 0.5, na.rm=T),
+                      ValorMedio = ~mean(., na.rm=T), #el valor medio es la media
+                      DesviacionTipica = ~sd(., na.rm=T), #existe la función sd, no hace falta hacer sqrt(var())
+                      Percentil75 = ~quantile(., 0.75, na.rm=T),
+                      ValorMaximo = ~max(., na.rm=T))))
 
+tabla <- tabla %>% pivot_longer(everything(), names_to="asignaturas", values_to="valores")
+tabla <- tabla %>% mutate(valores=round(valores, 2))
 
+tabla <- tabla %>%
+  separate(asignaturas, into = c("asignatura", "estadistico"), sep = "_")
+
+tabla <- tabla %>% pivot_wider(names_from = estadistico, values_from = valores)
+colnames(tabla)[colnames(tabla)=="asignatura"] <- "Asignatura"
 ```
 
 7. Usa la función ggpairs de la librería GGally y representa las relaciones entre todas las variables.
