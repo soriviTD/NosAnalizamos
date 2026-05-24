@@ -102,7 +102,11 @@ ggplot(notas_con_sexo, aes(x=asignatura, y=valores)) + geom_boxplot(aes(colour=S
 
 11. Selecciona los alumnos que tengan calificaciones en todas las asignaturas y represéntalas gráficamente.  En el eje X aparecerá el usuario del alumno (girado 90º) y en el eje Y la calificación numérica con un color distinto para cada asignatura. Se mostrará un diagrama de líneas, que una las calificaciones de una misma asignatura para todos los alumnos así como un punto, por asignatura (del mismo color que las líneas), para cada asignatura y alumno.
 ```{r}
+notas_comp <- datos[,c(2, 13, 14, 15, 16, 17)]
+notas_comp <- notas_comp %>% filter(complete.cases(.))
+notas_comp <- notas_comp %>% pivot_longer(c(-Id), names_to="asignatura", values_to = "notas")
 
+ggplot(notas_comp, aes(x=Id, y=notas, colour=asignatura, group=asignatura)) + geom_point() + geom_line() + theme(legend.position="none", axis.text.x = element_text(angle = 90, hjust = 0.5))
 ```
 
 12. Sin hacer ninguna modificación en el código utiliza el fichero correspondiente al año 2026 y compara los resultados con los del curso 2022
