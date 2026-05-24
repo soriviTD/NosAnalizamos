@@ -2,7 +2,9 @@
 title: "Untitled"
 author: "Sofia Rivera Vidal"
 date: "2026-05-04"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 1. Elegir plantilla
@@ -220,10 +222,15 @@ mean(datos26$FP, na.rm=T) #4.4
 
 13.9. Define una nueva variable (PulseCat) a partir del ritmo cardíaco (Pulse), con dos valores PulseH, si Pulse>=65 y PulseL si Pulse<65. ¿Qué valores utilizarías para imputar los valores faltantes de las notas de FP, dependiendo del valor de PulseCat (imputación por casos similares)
 ```{r}
+datos26 <- datos26 %>% filter(!is.na(Pulse)) %>% mutate(PulseCat = ifelse(Pulse>=65, T, F))
+#medias_fp <- datos26 %>% filter(!is.na(FP)) %>% group_by(PulseCat) %>% summarise(media = mean(FP))
 
+datos26 <- datos26 %>%
+  group_by(PulseCat) %>%
+  mutate(FP = ifelse(is.na(FP), mean(PulseCat, na.rm = TRUE), FP)) #%>% ungroup() ##Desagrupar es importante para evitar efectos secundarios posteriores, pero no es necesario.
 ```
 
 13.10. ¿Qué podemos decir, como científicos de datos, ante esta frase referida a nuestros datos ? "El ritmo cardíaco está ligado con la cantidad de sangre que llega al cerebro, por tanto existirá una relación lineal directa esta esta variable y las calificaciones obtenidas en ALG"
 ```{r}
-
+#Correlación no implica causalidad. Aunque se observara que las variables estuvieran lineal o no linealmente relacionadas, no tendría porqué implicar causalidad. Por esto, habría que estudiar más variables para ver si esas dos son las únicas que comparten correlación o si hay otras que están relacionadas.
 ```
