@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 if (!require("pacman")) install.packages("pacman")
 library(pacman)
-pacman::p_load(readr, dplyr)
+pacman::p_load(readr, dplyr, GGally)
 ```
 
 3. Carga el fichero de datos en R y llama datos al data frame obtenido. Este data frame contendrá exclusivamente las columnas con variables y las filas que contengan datos. Se sabe que los datos empiezan en la fila 25 pero NO cuántos alumnos puede haber por lo que la selección de filas con datos debe ser AUTOMÁTICA.
@@ -69,7 +69,7 @@ colnames(tabla)[colnames(tabla)=="asignatura"] <- "Asignatura"
 
 7. Usa la función ggpairs de la librería GGally y representa las relaciones entre todas las variables.
 ```{r}
-
+ggpairs(tabla)
 ```
 
 8. Determina las matrices de correlación y covarianza de dichas variables, con las opciones "Spearman" y "Pearson" e indica qué  pares de variables tienen la correlación más alta. 
