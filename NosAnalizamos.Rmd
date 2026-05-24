@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 if (!require("pacman")) install.packages("pacman")
 library(pacman)
-pacman::p_load(readr, dplyr, GGally, ggplot2, patchwork)
+pacman::p_load(readr, dplyr, GGally, ggplot2, patchwork, tidyr)
 ```
 
 3. Carga el fichero de datos en R y llama datos al data frame obtenido. Este data frame contendrá exclusivamente las columnas con variables y las filas que contengan datos. Se sabe que los datos empiezan en la fila 25 pero NO cuántos alumnos puede haber por lo que la selección de filas con datos debe ser AUTOMÁTICA.
@@ -225,30 +225,3 @@ mean(datos26$FP, na.rm=T) #4.4
 ```{r}
 
 ```
-
-
-
-
-
-
-
-
-Debes entregar el proyecto, que contendrá el código, los datos, el documento pdf y html obtenido al ejecutar el Rmd y  un fichero Notas.Rdata con el data frame de las calificaciones obtenidas al finalizar el apartado 5 (valores numéricos adecuados y NA). Incluye también un fichero de texto llamado EnlaceRepo.txt con el enlace al repositorio de GitHub de tu proyecto. Todo comprimido en formato ZIP
-
-
-
-4. Cargar datos.
-- Texto: averiguar codificación. Readlines (no tabular).
-- ReadR: lectura tabular.
-
-5. Ver estructura e identificar tipos de variables.
-- Cambiar los tipos si necesario.
-
-reglas <- correctionRules(expression(
-if(Fold=="Izquierda") = ...... "Izquierdo"))
-))
-
-Validator(
-Age >17, age <65,
-)
-)
