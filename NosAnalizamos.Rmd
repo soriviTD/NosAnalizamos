@@ -139,49 +139,81 @@ notas26 <- notas26 %>% filter(!is.na(notas))
 g12 <- ggplot(notas26, aes(x=asignatura, y=notas)) + geom_boxplot(aes(fill=asignatura))
 g12
 
-g9 + g12
+g9 + g12 + plot_layout(axes = "collect") #Compartir eje y
 ```
 
 13. Responde a las siguientes preguntas, utilizando los datos del curso 2026.  Ten en cuenta que deberás hacer correcciones en los datos en aquellos casos en los que los valores introducidos contengan errores. Por ejemplo si en las instrucción se indica que para el sexo de nacimiento los valores posibles son M y F, cualquier otro valor deberá ser corregido.  Si la corrección no es posible sustituye por NA. Debes justificar todas las cuestiones con los datos disponibles.
 
 13.1. ¿Qué edad, expresada en años (con decimales) tiene el alumno más joven a fecha 01/02/2026.
 ```{r}
-
+datos26 <- datos26 %>%
+  mutate(`FechaNac(DD-MM-YYY)` = gsub("/", "-", `FechaNac(DD-MM-YYY)`))
+datos26$`FechaNac(DD-MM-YYY)` <- as.Date(datos26$`FechaNac(DD-MM-YYY)`, format='%d-%m-%Y')
+mas_joven = max(datos26$`FechaNac(DD-MM-YYY)`, na.rm=T)
+(Sys.Date()-mas_joven)/365 #años
 ```
 
 13.2. Cuántos alumnos simultanean trabajo y estudios.
 ```{r}
-
+#filter(datos26$Hwork>0) ##Primero siempre hay que pasar el df
+datos26 %>% filter(Hwork>0) %>% nrow() #14
 ```
 
 13.3. Hay más hombres o más mujeres fumadoras.
 ```{r}
-
+unique(datos26$Smoke)
+fum <- datos26 %>% filter(Smoke=="Si")
+table(fum$Sex, fum$Smoke) #7 hombres, 0 mujeres
 ```
 
 13.4. Cuál es el valor medio y la varianza de la variable Wr.Hnd según el sexo.
 ```{r}
-
+datos26 <- datos26 %>%
+  mutate(Wr.Hnd = gsub(",", ".", Wr.Hnd))
+datos26$Wr.Hnd <- as.numeric(datos26$Wr.Hnd)
+datos26 %>% group_by(Sex) %>% summarise(Media = mean(Wr.Hnd, na.rm=T),
+                                        Varianza = var(Wr.Hnd, na.rm=T))
 ```
 
 13.5. Determina si existe relación entre el sexo y la mano con la que se escribe  (NW.Hnd)
 ```{r}
+unique(datos26$NW.Hnd)
+datos26$NW.Hnd <- tolower(datos26$NW.Hnd)
 
+#ggplot(datos26, aes(x=Sex, y=NW.Hnd)) + geom_col()
+comparacion <- datos26[,c(4, 6)]
+comparacion$Sex <- as.factor(comparacion$Sex)
+comparacion$NW.Hnd <- as.factor(comparacion$NW.Hnd)
+tabla <- table(comparacion)
+mosaicplot(tabla) #No, no hay relación
 ```
 
 13.6. Existe una relación lineal entre la altura (Height) y la distancia del extremo del meñique al extremo del pulgar de la mano con la que escribimos (Wr.Hnd)
 ```{r}
-
+rel <- datos26 %>% filter(complete.cases(Wr.Hnd)) %>% filter(complete.cases(Height))
+cor(rel$Height, rel$Wr.Hnd) #No se puede afirmar que estén relacionados.
 ```
 
 13.7. El identificador de Hampel detecta algún outlier en la variable altura.
 ```{r}
+madm <- function(x, na.rm=T) {
+  mediana_x <- median(x, na.rm = TRUE)
+  1.4826*median(abs(x-mediana_x), na.rm = TRUE)}
 
+reglahampel <- function(x) {
+  val_out <- 3*madm(x, na.rm = TRUE)
+  mediana <- median(x, na.rm = TRUE)
+  es_outlier <- x<(mediana-val_out) | x>(mediana+val_out)
+  return(es_outlier)
+}
+
+altura <- datos26 %>% filter(complete.cases(Height))
+sum(reglahampel(datos26$Height)==T) #No
 ```
 
 13.8. Considera la asignatura FP. Si queremos realizar una imputación generalizada usando la media, ¿qué valor deberíamos utilizar ?
 ```{r}
-
+mean(datos26$FP, na.rm=T) #4.4
 ```
 
 13.9. Define una nueva variable (PulseCat) a partir del ritmo cardíaco (Pulse), con dos valores PulseH, si Pulse>=65 y PulseL si Pulse<65. ¿Qué valores utilizarías para imputar los valores faltantes de las notas de FP, dependiendo del valor de PulseCat (imputación por casos similares)
