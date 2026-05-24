@@ -42,6 +42,8 @@ datos <- datos %>%
 
 datos <- datos %>%
    mutate(across(c(ALG, ANM, FP, DCS, MD), ~as.numeric(.)))
+
+save(datos, file = "data/Notas.RData")
 ```
 
 6. Obtén una tabla de estadísticos de estas variables. Donde en la primera columnas aparezca cada una de las asignaturas y las siguientes columnas se correspondan con los  estadísticos que se indican, en este orden: valor mínimo, percentil25, mediana, valor medio, desviació típica, percentil75, valor máximo. Los resultados se mostrarán con 2 decimales.
