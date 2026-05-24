@@ -1,0 +1,170 @@
+---
+title: "Untitled"
+author: "Sofia Rivera Vidal"
+date: "2026-05-04"
+output: html_document
+---
+
+1. Elegir plantilla
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+2. Cargar librerías.
+```{r}
+if (!require("pacman")) install.packages("pacman")
+library(pacman)
+pacman::p_load(readr, dplyr)
+```
+
+3. Carga el fichero de datos en R y llama datos al data frame obtenido. Este data frame contendrá exclusivamente las columnas con variables y las filas que contengan datos. Se sabe que los datos empiezan en la fila 25 pero NO cuántos alumnos puede haber por lo que la selección de filas con datos debe ser AUTOMÁTICA.
+```{r}
+datos <- read_delim("data/NosAutoanalizamos2022 - Hoja1.tsv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE, skip = 25)
+datos <- datos[,-1]
+```
+
+4. Elimina al usuario cuyo id es martsobm del conjunto de datos.
+```{r}
+datos <- datos %>% filter(Id!="martsobm")
+```
+
+5. Selecciona las columnas  con las calificaciones y adecúalas para que al transformar a tipo numérico los valores sean correctos (recuerda que el separador decimal es el punto). Si alguna calificación es NC se sustituirá por 3. Cualquier otro valor no conocido se sustituirá por NA (por ejemplo "6 y pico", no es un valor conocido).
+```{r}
+datos <- datos %>%
+  mutate(across(c(ALG, ANM, FP, DCS, MD), ~gsub(",", ".", .))) #"~" es como una función, le dice que lo pase para cada columna, el "." le dice que lo haga para esa columna.
+
+datos <- datos %>%
+   mutate(across(c(ALG, ANM, FP, DCS, MD), ~ifelse(.=="NC", 3, .)))
+datos <- datos %>%
+   mutate(across(c(ALG, ANM, FP, DCS, MD), ~ifelse(.=="NP", NA, .)))
+
+datos <- datos %>%
+   mutate(across(c(ALG, ANM, FP, DCS, MD), ~as.numeric(.)))
+```
+
+6. Obtén una tabla de estadísticos de estas variables. Donde en la primera columnas aparezca cada una de las asignaturas y las siguientes columnas se correspondan con los  estadísticos que se indican, en este orden: valor mínimo, percentil25, mediana, valor medio, desviació típica, percentil75, valor máximo. Los resultados se mostrarán con 2 decimales.
+```{r}
+tabla <- datos %>%
+   summarise(across(c(ALG, ANM, FP, DCS, MD),
+                    list(
+                      valor_minimo = min,
+                      percentil25 = ~quantile(., 0.25, na.rm=T),
+                      mediana = ~quantile(., 0.5, na.rm=T),
+                      valor_medio = ~mean(., na.rm=T), #el valor medio es la media
+                      desviacion_tipica = ~sd(., na.rm=T), #existe la función sd, no hace falta hacer sqrt(var())
+                      percentil75 = ~quantile(., 0.75, na.rm=T),
+                      valor_maximo = ~max(., na.rm=T))))
+
+
+```
+
+7. Usa la función ggpairs de la librería GGally y representa las relaciones entre todas las variables.
+```{r}
+
+```
+
+8. Determina las matrices de correlación y covarianza de dichas variables, con las opciones "Spearman" y "Pearson" e indica qué  pares de variables tienen la correlación más alta. 
+```{r}
+
+```
+
+9. Representa en una misma gráfica los boxplots con las calificaciones obtenidas en las diferentes asignaturas.
+```{r}
+
+```
+
+10. Añade la variable sexo al conjunto de datos y realiza la representación del boxplot de calificaciones por asignatura coloreando según dicha variable.
+```{r}
+
+```
+
+11. Selecciona los alumnos que tengan calificaciones en todas las asignaturas y represéntalas gráficamente.  En el eje X aparecerá el usuario del alumno (girado 90º) y en el eje Y la calificación numérica con un color distinto para cada asignatura. Se mostrará un diagrama de líneas, que una las calificaciones de una misma asignatura para todos los alumnos así como un punto, por asignatura (del mismo color que las líneas), para cada asignatura y alumno.
+```{r}
+
+```
+
+12. Sin hacer ninguna modificación en el código utiliza el fichero correspondiente al año 2026 y compara los resultados con los del curso 2022
+```{r}
+
+```
+
+13. Responde a las siguientes preguntas, utilizando los datos del curso 2026.  Ten en cuenta que deberás hacer correcciones en los datos en aquellos casos en los que los valores introducidos contengan errores. Por ejemplo si en las instrucción se indica que para el sexo de nacimiento los valores posibles son M y F, cualquier otro valor deberá ser corregido.  Si la corrección no es posible sustituye por NA. Debes justificar todas las cuestiones con los datos disponibles.
+
+13.1. ¿Qué edad, expresada en años (con decimales) tiene el alumno más joven a fecha 01/02/2026.
+```{r}
+
+```
+
+13.2. Cuántos alumnos simultanean trabajo y estudios.
+```{r}
+
+```
+
+13.3. Hay más hombres o más mujeres fumadoras.
+```{r}
+
+```
+
+13.4. Cuál es el valor medio y la varianza de la variable Wr.Hnd según el sexo.
+```{r}
+
+```
+
+13.5. Determina si existe relación entre el sexo y la mano con la que se escribe  (NW.Hnd)
+```{r}
+
+```
+
+13.6. Existe una relación lineal entre la altura (Height) y la distancia del extremo del meñique al extremo del pulgar de la mano con la que escribimos (Wr.Hnd)
+```{r}
+
+```
+
+13.7. El identificador de Hampel detecta algún outlier en la variable altura.
+```{r}
+
+```
+
+13.8. Considera la asignatura FP. Si queremos realizar una imputación generalizada usando la media, ¿qué valor deberíamos utilizar ?
+```{r}
+
+```
+
+13.9. Define una nueva variable (PulseCat) a partir del ritmo cardíaco (Pulse), con dos valores PulseH, si Pulse>=65 y PulseL si Pulse<65. ¿Qué valores utilizarías para imputar los valores faltantes de las notas de FP, dependiendo del valor de PulseCat (imputación por casos similares)
+```{r}
+
+```
+
+13.10. ¿Qué podemos decir, como científicos de datos, ante esta frase referida a nuestros datos ? "El ritmo cardíaco está ligado con la cantidad de sangre que llega al cerebro, por tanto existirá una relación lineal directa esta esta variable y las calificaciones obtenidas en ALG"
+```{r}
+
+```
+
+
+
+
+
+
+
+
+Debes entregar el proyecto, que contendrá el código, los datos, el documento pdf y html obtenido al ejecutar el Rmd y  un fichero Notas.Rdata con el data frame de las calificaciones obtenidas al finalizar el apartado 5 (valores numéricos adecuados y NA). Incluye también un fichero de texto llamado EnlaceRepo.txt con el enlace al repositorio de GitHub de tu proyecto. Todo comprimido en formato ZIP
+
+
+
+4. Cargar datos.
+- Texto: averiguar codificación. Readlines (no tabular).
+- ReadR: lectura tabular.
+
+5. Ver estructura e identificar tipos de variables.
+- Cambiar los tipos si necesario.
+
+reglas <- correctionRules(expression(
+if(Fold=="Izquierda") = ...... "Izquierdo"))
+))
+
+Validator(
+Age >17, age <65,
+)
+)
