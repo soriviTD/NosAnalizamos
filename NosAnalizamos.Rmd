@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 if (!require("pacman")) install.packages("pacman")
 library(pacman)
-pacman::p_load(readr, dplyr, GGally, ggplot2)
+pacman::p_load(readr, dplyr, GGally, ggplot2, patchwork)
 ```
 
 3. Carga el fichero de datos en R y llama datos al data frame obtenido. Este data frame contendrá exclusivamente las columnas con variables y las filas que contengan datos. Se sabe que los datos empiezan en la fila 25 pero NO cuántos alumnos puede haber por lo que la selección de filas con datos debe ser AUTOMÁTICA.
@@ -89,6 +89,7 @@ notas <- notas %>%
   pivot_longer(everything(), names_to="asignatura", values_to="valores") %>%
   filter(!is.na(valores))
 ggplot(notas, aes(x=asignatura, y=valores)) + geom_boxplot()
+g9 <- ggplot(notas, aes(x=asignatura, y=valores)) + geom_boxplot(aes(fill=asignatura))
 ```
 
 10. Añade la variable sexo al conjunto de datos y realiza la representación del boxplot de calificaciones por asignatura coloreando según dicha variable.
@@ -111,7 +112,34 @@ ggplot(notas_comp, aes(x=Id, y=notas, colour=asignatura, group=asignatura)) + ge
 
 12. Sin hacer ninguna modificación en el código utiliza el fichero correspondiente al año 2026 y compara los resultados con los del curso 2022
 ```{r}
+datos26 <- read_delim("data/NosAutoanalizamos2026 - NosAutoanalizamos (1).tsv", 
+    delim = "\t", escape_double = FALSE, 
+    trim_ws = TRUE, skip = 27)
 
+
+datos26 <- datos26 %>% filter(Id!="martsobm")
+
+
+datos26 <- datos26 %>%
+  mutate(across(c(ALG, ANM, FP, DCS, MD), ~gsub(",", ".", .))) #"~" es como una función, le dice que lo pase para cada columna, el "." le dice que lo haga para esa columna.
+
+datos26 <- datos26 %>%
+   mutate(across(c(ALG, ANM, FP, DCS, MD), ~ifelse(.=="NC", 3, .)))
+datos26 <- datos26 %>%
+   mutate(across(c(ALG, ANM, FP, DCS, MD), ~ifelse(.=="NP", NA, .)))
+
+datos26 <- datos26 %>%
+   mutate(across(c(ALG, ANM, FP, DCS, MD), ~as.numeric(.)))
+
+
+notas26 <- datos26[,c(2, 13, 14, 15, 16, 17)]
+notas26 <- notas26 %>% pivot_longer(c(-Id), names_to="asignatura", values_to = "notas")
+notas26 <- notas26 %>% filter(!is.na(notas))
+
+g12 <- ggplot(notas26, aes(x=asignatura, y=notas)) + geom_boxplot(aes(fill=asignatura))
+g12
+
+g9 + g12
 ```
 
 13. Responde a las siguientes preguntas, utilizando los datos del curso 2026.  Ten en cuenta que deberás hacer correcciones en los datos en aquellos casos en los que los valores introducidos contengan errores. Por ejemplo si en las instrucción se indica que para el sexo de nacimiento los valores posibles son M y F, cualquier otro valor deberá ser corregido.  Si la corrección no es posible sustituye por NA. Debes justificar todas las cuestiones con los datos disponibles.
